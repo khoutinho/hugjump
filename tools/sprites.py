@@ -27,6 +27,49 @@ def save(path, px):
                 + chunk(b'IDAT', zlib.compress(raw, 9)) + chunk(b'IEND', b''))
 
 
+def load(path):
+    """Reads an 8-bit RGB or RGBA PNG into rows of RGBA tuples (None where fully transparent)."""
+    data = open(path, 'rb').read()
+    pos, idat = 8, b''
+    while pos < len(data):
+        length, kind = struct.unpack('>I4s', data[pos:pos + 8])
+        body = data[pos + 8:pos + 8 + length]
+        if kind == b'IHDR':
+            w, h, depth, ctype = struct.unpack('>IIBB', body[:10])
+        elif kind == b'IDAT':
+            idat += body
+        pos += 12 + length
+    if depth != 8 or ctype not in (2, 6):
+        raise ValueError('only 8-bit RGB or RGBA PNGs are supported')
+    bpp = 3 if ctype == 2 else 4
+    raw, stride = zlib.decompress(idat), w * bpp
+    px, prev, i = [], bytearray(stride), 0
+    for _ in range(h):
+        kind, line = raw[i], bytearray(raw[i + 1:i + 1 + stride])
+        i += 1 + stride
+        # Undo the PNG row filters
+        for x in range(stride):
+            a = line[x - bpp] if x >= bpp else 0
+            b, c = prev[x], prev[x - bpp] if x >= bpp else 0
+            if kind == 1:
+                line[x] = (line[x] + a) & 255
+            elif kind == 2:
+                line[x] = (line[x] + b) & 255
+            elif kind == 3:
+                line[x] = (line[x] + (a + b) // 2) & 255
+            elif kind == 4:
+                p = a + b - c
+                pa, pb, pc = abs(p - a), abs(p - b), abs(p - c)
+                line[x] = (line[x] + (a if pa <= pb and pa <= pc else b if pb <= pc else c)) & 255
+        row = []
+        for x in range(w):
+            p = tuple(line[x * bpp:x * bpp + bpp]) + ((255,) if bpp == 3 else ())
+            row.append(p if p[3] > 0 else None)
+        px.append(row)
+        prev = line
+    return px
+
+
 # Palettes sampled from the reference photo: warm yellow-green stalk, straw-coloured nodes and cut.
 # Shades go from the top of the stalk (lit) to the bottom (shadow)
 GREEN = {

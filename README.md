@@ -85,6 +85,10 @@ Ajustes rápidos
 
 * **Ritmo do fundo:** constantes no topo de `app/scripts/background.coffee`. `FOREST_END` é a altura
   em que a floresta sai da tela e `CLOUD_START` é quando as nuvens começam a aparecer.
+* **Quantidade de nuvens:** `CLOUDS_PER_BAND` em `app/scripts/background.coffee` (mais = céu mais
+  cheio) e `CLOUD_GAP` para o espaço mínimo entre elas.
+* **Vento nas nuvens:** `CLOUD_DRIFT` no mesmo arquivo (pixels do desenho por segundo, sempre para a
+  direita; 0 para nuvens paradas). As nuvens dão a volta: a que sai pela direita volta pela esquerda.
 * **Transparência das nuvens:** `opacity` em `.bg-clouds`, no `app/styles/main.scss`.
 * **Altura do panda no menu:** `$menu-panda-ground` no `app/styles/main.scss`.
 
@@ -99,6 +103,7 @@ python3 tools/sprites.py app/images   # bambus e torii
 python3 tools/panda.py app/images     # panda e panda com jetpack (com "v1", o panda antigo, mais detalhado)
 python3 tools/items.py app/images     # moeda, tambor, jetpack, troféu e alto-falante
 python3 tools/flags.py app/images     # bandeiras do Brasil e do Reino Unido
+python3 tools/clouds.py app/images    # recorta background-clouds.png em nuvens soltas (app/images/clouds/)
 ```
 
 Créditos

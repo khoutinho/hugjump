@@ -111,12 +111,13 @@ body {
   opacity: 0.6;
 }
 
-.bg-cloud-tile {
+// One cloud; background.coffee sets its image, size and position
+.bg-cloud {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  background: url('../images/background-clouds.png') repeat-x;
+  background-size: 100% 100%;
+  image-rendering: pixelated;
 }
 
 .playeranimator {

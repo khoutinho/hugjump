@@ -12,7 +12,7 @@ define ["scene", "player", "camera", "entityManager", "scoreBoard", "background"
       @addChildElement(@entityManager.el)
       @scoreBoard = new ScoreBoard(@)
       @addChildElement(@scoreBoard.el)
-      @background = new Background(@game.el.parent(), @game.el)
+      @background = new Background(@game.el.parent())
       @reset()
       @music = new Howl({
         urls: ['/sound/popcorn.ogg'],

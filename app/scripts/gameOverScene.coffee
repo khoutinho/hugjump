@@ -68,5 +68,7 @@ define ["scene", "score", "i18n"], (Scene, score, i18n) ->
     update: (dt) ->
       super dt
       @resultsTime += dt if @resultsTime?
+      # Clouds keep drifting behind the results
+      @background?.update()
 
   return GameOverScene
