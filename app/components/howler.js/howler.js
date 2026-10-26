@@ -25,7 +25,7 @@
 
   // create a master gain node
   if (usingWebAudio) {
-    var gainNode = ctx.createGainNode();
+    var gainNode = ctx.createGain();
     gainNode.gain.value = 1;
     gainNode.connect(ctx.destination);
   }
@@ -168,7 +168,7 @@
       self._audioNode = [];
     } else {
       // create gain node
-      self._gainNode = ctx.createGainNode();
+      self._gainNode = ctx.createGain();
       self._gainNode.gain.value = self._volume;
       self._gainNode.connect(gainNode);
     }
@@ -334,7 +334,7 @@
         refreshBuffer(self);
 
         self._playStart = ctx.currentTime;
-        self.bufferSource.noteGrainOn(0, pos, duration);
+        self.bufferSource.start(0, pos, duration);
       } else {
         self.inactiveNode(function(node) {
           node.id = soundId;
@@ -376,7 +376,7 @@
         }
 
         self._pos += ctx.currentTime - self._playStart;
-        self.bufferSource.noteOff(0);
+        self.bufferSource.stop(0);
       } else {
         var activeNode = (id) ? self.nodeById(id) : self.activeNode();
 
@@ -421,7 +421,7 @@
           return self;
         }
 
-        self.bufferSource.noteOff(0);
+        self.bufferSource.stop(0);
       } else {
         var activeNode = self.activeNode();
 

@@ -1,5 +1,5 @@
-define ["scene", "player", "camera", "entityManager", "scoreBoard"],
-(Scene, Player, Camera, EntityManager, ScoreBoard)->
+define ["scene", "player", "camera", "entityManager", "scoreBoard", "background"],
+(Scene, Player, Camera, EntityManager, ScoreBoard, Background)->
   class GameScene extends Scene
     constructor: (@game)->
       super @game, "gameScene"
@@ -12,6 +12,7 @@ define ["scene", "player", "camera", "entityManager", "scoreBoard"],
       @addChildElement(@entityManager.el)
       @scoreBoard = new ScoreBoard(@)
       @addChildElement(@scoreBoard.el)
+      @background = new Background(@game.el.parent(), @game.el)
       @reset()
       @music = new Howl({
         urls: ['/sound/popcorn.ogg'],
@@ -54,11 +55,11 @@ define ["scene", "player", "camera", "entityManager", "scoreBoard"],
     render: ->
       @player.render @camera
       @entityManager.render @camera
-      # Move background
-      @game.el.css "background-position", "0px #{-@camera.position*0.4}px"
+      @background.update @camera
 
     cleanup: ->
       super()
+      @background.remove()
       console.log "GameScene.cleanup()"
 
   return GameScene

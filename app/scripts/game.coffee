@@ -1,8 +1,8 @@
 #global define, $ 
 Function::property = (prop, desc) ->
   Object.defineProperty @prototype, prop, desc
-define ["camera", "gameScene", "controls", "menuScene", "gameOverScene"],
-(Camera, GameScene, controls, MenuScene, GameOverScene) ->
+define ["camera", "gameScene", "controls", "menuScene", "gameOverScene", "highScoresScene"],
+(Camera, GameScene, controls, MenuScene, GameOverScene, HighScoresScene) ->
   class Game
     constructor: (el) ->
       console.log "GAME!!"
@@ -50,6 +50,9 @@ define ["camera", "gameScene", "controls", "menuScene", "gameOverScene"],
 
     gameOver: (score) ->
       @switchScene(new GameOverScene(this, score))
+
+    startHighScores: ->
+      @switchScene(new HighScoresScene(this))
     
     requestAnimFrame = (callback) ->
       if window.requestAnimationFrame or

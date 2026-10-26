@@ -1,0 +1,15 @@
+@mixin box-shadow($v...) { box-shadow: $v; }
+@mixin transform($v...) { transform: $v; }
+@function -compass-space-list($list) { @return join((), $list, space); }
+@mixin experimental($property, $value, $args...) { -webkit-#{$property}: $value; #{$property}: $value; }
+@function compact($vars...) {
+  $list: ();
+  @each $var in $vars { @if $var { $list: append($list, $var, comma); } }
+  @return $list;
+}
+$experimental-support-for-mozilla: false;
+$experimental-support-for-webkit: true;
+$experimental-support-for-opera: false;
+$experimental-support-for-microsoft: false;
+$experimental-support-for-khtml: false;
+@mixin with-only-support-for($args...) { @content; }

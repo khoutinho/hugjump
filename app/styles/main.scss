@@ -4,8 +4,46 @@
 
 @font-face
 {
-  font-family: Al-seana;
-  src: url('../fonts/al-seana.ttf');
+  font-family: 'Press Start 2P';
+  src: url('../fonts/press-start-2p.woff2') format('woff2'),
+       url('../fonts/press-start-2p.woff') format('woff');
+}
+
+$game-font: 'Press Start 2P', monospace;
+$pixel-dark: #2b1d0e;
+
+// Hard 1px-step outline that keeps pixel text readable on any background
+%pixel-outline {
+  text-shadow: 2px 0 0 $pixel-dark, -2px 0 0 $pixel-dark, 0 2px 0 $pixel-dark, 0 -2px 0 $pixel-dark,
+               2px 2px 0 $pixel-dark, -2px -2px 0 $pixel-dark, 2px -2px 0 $pixel-dark, -2px 2px 0 $pixel-dark;
+}
+
+// Square button with a stepped border, drawn in CSS so it fits any label length
+%pixel-button {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: $game-font;
+  font-size: 1.8em;
+  white-space: nowrap;
+  background: #f4e4b8;
+  box-shadow: 0 -0.25em 0 0 $pixel-dark, 0 0.25em 0 0 $pixel-dark,
+              -0.25em 0 0 0 $pixel-dark, 0.25em 0 0 0 $pixel-dark,
+              inset 0 -0.25em 0 0 #c9a96a;
+
+  a {
+    display: block;
+    padding: 0.7em 1.2em 0.8em;
+    text-decoration: none;
+    color: $pixel-dark;
+  }
+
+  &:active {
+    transform: translateX(-50%) translateY(0.15em);
+    box-shadow: 0 -0.25em 0 0 $pixel-dark, 0 0.25em 0 0 $pixel-dark,
+                -0.25em 0 0 0 $pixel-dark, 0.25em 0 0 0 $pixel-dark,
+                inset 0 0.25em 0 0 #c9a96a;
+  }
 }
 
 * {
@@ -25,8 +63,11 @@ body {
   position: absolute;
   right: 0;
   top: 0;
-  background: url('../images/background.png') repeat;
-  background-size: 320px 320px;
+  background: url('../images/menu-background.png') no-repeat center bottom,
+              url('../images/background-sky.png') no-repeat center;
+  // Forest as wide as the screen with its bottom on the ground, same as .bg-forest at the start
+  background-size: 100% auto, cover;
+  image-rendering: pixelated;
 }
 
 .game {
@@ -38,8 +79,44 @@ body {
   margin: 0px auto 0px;
   border-right: 2px solid;
   border-left: 2px solid;
-  background: url('../images/background.png') repeat;
-  background-size: 320px 320px;
+  z-index: 1;
+}
+
+// Background layers stacked behind the game, faded in by background.coffee
+.bg-layer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 0;
+  image-rendering: pixelated;
+}
+
+.bg-sky {
+  background: url('../images/background-sky.png') no-repeat center;
+  background-size: cover;
+}
+
+.bg-forest {
+  // Sized and positioned by background.coffee so the whole image is shown
+  bottom: auto;
+  background: url('../images/menu-background.png') no-repeat;
+  background-size: 100% 100%;
+}
+
+.bg-clouds {
+  overflow: hidden;
+  // 1 = fully opaque clouds, lower values let more sky show through
+  opacity: 0.6;
+}
+
+.bg-cloud-tile {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: url('../images/background-clouds.png') repeat-x;
 }
 
 .playeranimator {
@@ -54,8 +131,9 @@ body {
 .player {
   width: 100%;
   height: 100%;
-  background: url('../images/doodle_right.png') no-repeat;
-  background-size: cover;
+  background: url('../images/panda.png') no-repeat;
+  background-size: 100% 100%;
+  image-rendering: pixelated;
 }
 
 .player.trampoline {
@@ -63,34 +141,45 @@ body {
 }
 
 .player.jetpack {
-  background: url('../images/doodle_jetpack.png') no-repeat;
-  background-size: cover;
+  // 2 frames side by side so the flame flickers
+  background: url('../images/panda-jetpack.png') no-repeat;
+  background-size: 200% 100%;
+  animation: panda-flame 0.16s steps(1) infinite;
+}
+
+@keyframes panda-flame {
+  0% { background-position: 0 0; }
+  50% { background-position: 100% 0; }
 }
 
 .platform {
   position: absolute;
-  background: url('../images/green_platform.png') no-repeat;
-  background-size: cover;
+  background: url('../images/platform-bamboo.png') no-repeat;
+  background-size: 100% 100%;
+  image-rendering: pixelated;
   width: 4.5em;
-  height: 1.1em;
+  // Matches the 28x8 sprite
+  height: 1.29em;
   z-index: 2;
 }
 
 .obstacle {
   position: absolute;
-  background: url('../images/red_platform.png') no-repeat;
-  background-size: cover;
+  background: url('../images/obstacle-torii.png') no-repeat;
+  background-size: 100% 100%;
+  image-rendering: pixelated;
   width: 4.5em;
   height: 1.1em;
   z-index: 2;
 }
 
 .platform.fragile {
-  background: url('../images/brown_platform_breaking_animation.png') no-repeat;
-  background-size: 18em 1.2em;
+  // 4 frames of 28x11 pixels side by side; extra rows at the bottom let the pieces fall
+  background: url('../images/platform-bamboo-dry.png') no-repeat;
+  background-size: 18em 1.77em;
   background-position: 0em 0em;
   width: 4.5em;
-  height: 1.2em;
+  height: 1.77em;
 }
 
 .platform.fracturing {
@@ -103,18 +192,19 @@ body {
 
 .item {
   position: absolute;
+  image-rendering: pixelated;
 }
 
 .item.coin {
-  background: url('../images/ball.png') no-repeat;
-  background-size: cover;
+  background: url('../images/item-coin.png') no-repeat;
+  background-size: 100% 100%;
   width: 1.5em;
   height: 1.5em;
 }
 
 .item.trampoline {
-  background: url('../images/trampoline.png') no-repeat;
-  background-size: cover;
+  background: url('../images/item-drum.png') no-repeat;
+  background-size: 100% 100%;
   width: 4em;
   height: 1.86em;
   margin-top: 0.6em;
@@ -122,8 +212,8 @@ body {
 }
 
 .item.jetpack {
-  background: url('../images/jetpack.png') no-repeat;
-  background-size: cover;
+  background: url('../images/item-jetpack.png') no-repeat;
+  background-size: 100% 100%;
   width: 1.75em;
   height: 2.55em;
   z-index: 99;
@@ -132,12 +222,13 @@ body {
 .scoreboard {
   position: absolute;
   width: 100%;
-  height: 1em;
+  height: 1.9em;
+  line-height: 1.9em;
   background: rgba(167, 185, 205, 0.7);
   border-bottom: 2px solid black;
   @include box-shadow(rgba(black, 0.4) 0px 5px 10px);
-  font-family: Al-seana;
-  font-size: 3em;
+  font-family: $game-font;
+  font-size: 1.6em;
   padding: 0px 10px;
   z-index: 100; 
 }
@@ -152,109 +243,275 @@ body {
   height: 100%;
   font: bold;
 
-   .button {
-    position: absolute;
-    background: url('../images/button.png');
-    background-size: cover;
-    font-family: Al-seana;
-    font-size: 4em;
-    text-align: center;
-    width: 3em;
-    height: 1.07em;
+  .button {
+    @extend %pixel-button;
+  }
 
-    .pressed {
-      background: url('../images/button-pressed.png');
-    }
-
+  .button {
+    // Same width for every button on this screen, sized for the longest label
     a {
-      text-decoration: none;
-      color: black;
+      width: 8em;
+      text-align: center;
     }
   }
 
   .button.playAgain {
-    top: 7em;
-    left: 4em;
+    top: 40%;
+  }
+
+  .button.backToMenu {
+    top: calc(40% + 4.5em);
+  }
+
+  .button.saveName {
+    top: 40%;
+  }
+
+  .button.skipName {
+    top: calc(40% + 4.5em);
+  }
+
+  .nameEntry .label {
+    margin-top: 0.8em;
+  }
+
+  .nameInput {
+    display: block;
+    width: 10em;
+    margin: 0.6em auto 0;
+    padding: 0.5em 0.6em;
+    border: none;
+    outline: none;
+    background: #f4e4b8;
+    color: $pixel-dark;
+    font-family: $game-font;
+    font-size: 1.4em;
+    text-align: center;
+    text-transform: uppercase;
+    text-shadow: none;
+    box-shadow: 0 -0.2em 0 0 $pixel-dark, 0 0.2em 0 0 $pixel-dark,
+                -0.2em 0 0 0 $pixel-dark, 0.2em 0 0 0 $pixel-dark;
   }
 
   .information {
     position: absolute;
-    font-family: Al-seana;
-    font-size: 2em;
-    top: 4em;
-    left: 5.2em;
+    font-family: $game-font;
+    font-size: 1.2em;
+    top: 6em;
+    left: 0;
+    width: 100%;
     text-align: center;
+    line-height: 1.8em;
+    color: white;
+    @extend %pixel-outline;
 
     .heading {
-      font-size: 3em;
+      display: block;
+      font-size: 2.4em;
+      line-height: 1.6em;
       color: #e6a399;
     }
 
     span {
-      font-size: 2em;
-      font-size: bold;
+      font-size: 1.6em;
     }
   }
 }
 
-.menuScene {
+.highScoresScene {
   position: absolute;
-  background-size: 550px 600px;
-  background: url('../images/menu-background.png') no-repeat;
-  background-size: cover;
-  height: 60em;
-  width: 39.6em;
+  width: 100%;
+  height: 100%;
+  font-family: $game-font;
 
-  .button {
+  .heading {
     position: absolute;
-    background: url('../images/button.png');
-    background-size: cover;
-    font-family: Al-seana;
-    font-size: 4em;
+    top: 4%;
+    width: 100%;
     text-align: center;
-    width: 3em;
-    height: 1.08em;
+    font-size: 2.6em;
+    font-weight: normal;
+    color: #ffd23f;
+    @extend %pixel-outline;
+  }
 
-    .pressed {
-      background: url('../images/button-pressed.png');
+  .scoreList {
+    position: absolute;
+    top: 13%;
+    bottom: 20%;
+    left: 6%;
+    right: 6%;
+    overflow-y: auto;
+    list-style: none;
+    padding: 0.6em 1em;
+    background: rgba(13, 15, 6, 0.6);
+    box-shadow: 0 -0.4em 0 0 $pixel-dark, 0 0.4em 0 0 $pixel-dark,
+                -0.4em 0 0 0 $pixel-dark, 0.4em 0 0 0 $pixel-dark;
+    font-size: 1.2em;
+    color: white;
+
+    li {
+      display: flex;
+      padding: 0.45em 0;
+      border-bottom: 2px dashed rgba(255, 255, 255, 0.15);
     }
 
+    // Gold, silver and bronze for the podium
+    li:nth-child(1) { color: #ffd23f; }
+    li:nth-child(2) { color: #d9e0e6; }
+    li:nth-child(3) { color: #e0a060; }
+
+    .position {
+      width: 3.5em;
+    }
+
+    .name {
+      flex: 1;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .points {
+      margin-left: 1em;
+    }
+
+    .empty {
+      display: block;
+      text-align: center;
+      border: none;
+      color: white;
+    }
+  }
+
+  .button {
+    @extend %pixel-button;
+  }
+
+  .button.back {
+    bottom: 7%;
+  }
+}
+
+// Height of the path above the bottom of the screen, where the menu panda lands
+$menu-panda-ground: 10%;
+
+.menuScene {
+  position: absolute;
+  // Transparent so the menu shows the same full screen background as the margins
+  height: 100%;
+  width: 100%;
+
+  .button {
+    @extend %pixel-button;
+  }
+
+  .title {
+    position: absolute;
+    top: 12%;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-family: $game-font;
+    font-size: 4.4em;
+    font-weight: normal;
+    color: #ffd23f;
+    text-shadow: 0.08em 0 0 $pixel-dark, -0.08em 0 0 $pixel-dark, 0 0.08em 0 $pixel-dark, 0 -0.08em 0 $pixel-dark,
+                 0.08em 0.08em 0 $pixel-dark, -0.08em -0.08em 0 $pixel-dark, 0.08em -0.08em 0 $pixel-dark,
+                 -0.08em 0.08em 0 $pixel-dark, 0 0.18em 0 $pixel-dark;
+  }
+
+  .button {
+    // Same width for both menu buttons, sized for the longest label
     a {
-      text-decoration: none;
-      color: black;
+      width: 11em;
+      text-align: center;
     }
   }
 
   .button.play {
-    top: 5em;
-    left: 2.3em;
+    top: 30%;
   }
 
-  .button.about {
-    top: 6.4em;
-    left: 2.3em;
+  .button.highScores {
+    top: calc(30% + 4.5em);
+  }
+
+  .scores-toggle {
+    position: absolute;
+    // Just left of the language flag
+    right: 8.6em;
+    bottom: 2em;
+    height: 3.2em;
+    line-height: 3.3em;
+    padding: 0 0.9em 0 3.6em;
+    background: #f4e4b8 url('../images/icon-trophy.png') no-repeat 0.7em center;
+    background-size: 2.4em auto;
+    image-rendering: pixelated;
+    box-shadow: 0 -0.4em 0 0 $pixel-dark, 0 0.4em 0 0 $pixel-dark,
+                -0.4em 0 0 0 $pixel-dark, 0.4em 0 0 0 $pixel-dark;
+    font-family: $game-font;
+    font-size: 1em;
+    color: $pixel-dark;
+    text-decoration: none;
+    cursor: pointer;
+
+    &.off {
+      background-color: #a8a395;
+      color: #4a463c;
+      filter: grayscale(1);
+    }
+
+    &:active {
+      transform: translateY(0.2em);
+    }
+  }
+
+  .lang-toggle {
+    position: absolute;
+    right: 2em;
+    bottom: 2em;
+    width: 4.8em;
+    height: 3.2em;
+    background-size: 100% 100%;
+    image-rendering: pixelated;
+    box-shadow: 0 -0.4em 0 0 $pixel-dark, 0 0.4em 0 0 $pixel-dark,
+                -0.4em 0 0 0 $pixel-dark, 0.4em 0 0 0 $pixel-dark;
+    cursor: pointer;
+
+    &.pt {
+      background-image: url('../images/flag-br.png');
+    }
+
+    &.en {
+      background-image: url('../images/flag-uk.png');
+    }
+
+    &:active {
+      transform: translateY(0.2em);
+    }
   }
 
   .doodle {
+    // Bounces on the path at the bottom centre of the background
     position: absolute;
-    left: 8em;
-    top: 50.2em;
+    left: 50%;
+    bottom: $menu-panda-ground;
     width: 6em;
     height: 5.8em;
-    margin-top: -6em;
-    margin-left: -2.8em;
-    background: url('../images/doodle_right.png') no-repeat;
-    background-size: cover;
+    margin-left: -3em;
+    background: url('../images/panda.png') no-repeat;
+    background-size: 100% 100%;
+    image-rendering: pixelated;
     @include animation(menu-doodle-jumping 0.3s ease-in infinite alternate);
   }
 }
 
 @include keyframes(menu-doodle-jumping) {
   from {
-    top: 40em;
+    bottom: calc(#{$menu-panda-ground} + 10em);
   }
   to {
-    top: 50.2em;
+    bottom: $menu-panda-ground;
   }
 }
 

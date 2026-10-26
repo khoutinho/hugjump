@@ -1,7 +1,18 @@
 {
   "author": "",
-  "name": "",
+  "name": "doodle-jump",
   "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build:js": "coffee -c app/scripts",
+    "build:css": "sass --no-source-map --quiet --load-path=tools/compass-shim app/styles/main.scss app/styles/main.css",
+    "build": "npm run build:js && npm run build:css",
+    "dev": "npm run build && concurrently -k -n coffee,sass,server \"coffee -w -c app/scripts\" \"npm run build:css -- --watch\" \"python3 -m http.server 8000 -d app\""
+  },
   "dependencies": {},
-  "devDependencies": {}
+  "devDependencies": {
+    "coffee-script": "1.12.7",
+    "concurrently": "8.2.2",
+    "sass": "1.77.8"
+  }
 }
