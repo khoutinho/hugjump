@@ -1,59 +1,24 @@
-define ["scene", "scoreBoard", "score", "i18n"], (Scene, ScoreBoard, score, i18n) ->
+define ["scene", "score", "i18n"], (Scene, score, i18n) ->
   class GameOverScene extends Scene
-    NAME_MAX_LENGTH = 10
     ENTER = 13
     ESCAPE = 27
+    SPACE = 32
+    # Back to the menu if the player walks away from the stand
+    IDLE_SECONDS = 45
+    # Ignore keys right after the results show up, so keys still held from playing
+    # don't skip the screen
+    KEY_DELAY = 0.5
 
-    constructor: (@game, @currentScore) ->
+    constructor: (@game, @currentScore, @background) ->
       super @game, "gameOverScene"
-      @scoreBoard = new ScoreBoard(@)
-      @scoreBoard.score = @currentScore
-      @addChildElement(@scoreBoard.el)
       score.recordGame @currentScore
-
-      # With high scores on, ask for a name before showing the results
-      if score.enabled
-        @showNameEntry()
-      else
-        @showResults()
-
-    showNameEntry: ->
-      @nameEntryEl = $('<div class="information nameEntry"></div>')
-      @nameEntryEl.append $('<span class="heading"></span>').text(i18n.t('gameOver'))
-      yourScoreEl = $('<div></div>').text i18n.t('yourScore')
-      yourScoreEl.append $('<span></span>').text(@currentScore)
-      @nameEntryEl.append yourScoreEl
-      @nameEntryEl.append $('<div class="label"></div>').text(i18n.t('enterName'))
-      @nameInputEl = $('<input type="text" class="nameInput" autocomplete="off" spellcheck="false">')
-      @nameInputEl.attr 'maxlength', NAME_MAX_LENGTH
-      @nameEntryEl.append @nameInputEl
-      @addChildElement @nameEntryEl
-
-      @saveButtonEl = @makeButton 'save', 'saveName', @saveName
-      @skipButtonEl = @makeButton 'skip', 'skipName', @showResults
-
-      @nameInputEl.on 'keydown', (e) =>
-        if e.keyCode is ENTER
-          @saveName()
-        else if e.keyCode is ESCAPE
-          @showResults()
-      # The scene is only added to the page after the constructor, so focus on the next tick
-      setTimeout (=> @nameInputEl[0].focus()), 0
-
-    saveName: ->
-      # Upper case, as shown while typing
-      name = $.trim(@nameInputEl.val()).toUpperCase() or '???'
-      @rank = score.addEntry name.slice(0, NAME_MAX_LENGTH), @currentScore
+      @trackIdle IDLE_SECONDS
+      # Players sign up before playing when high scores are on, so the game is saved right away
+      if score.enabled and @game.player?
+        @rank = score.addEntry @game.player, @currentScore
       @showResults()
 
     showResults: ->
-      return if @resultsShown
-      @resultsShown = true
-      if @nameEntryEl?
-        @nameEntryEl.remove()
-        @saveButtonEl.remove()
-        @skipButtonEl.remove()
-
       @informationEl = $('<div class="information"></div>')
       @informationEl.append $('<span class="heading"></span>').text(i18n.t('gameOver'))
       yourScoreEl = $('<div></div>').text i18n.t('yourScore')
@@ -71,6 +36,20 @@ define ["scene", "scoreBoard", "score", "i18n"], (Scene, ScoreBoard, score, i18n
       @makeButton 'again', 'playAgain', -> @game.startGame()
       @makeButton 'menu', 'backToMenu', -> @game.startMenu()
 
+      # Enter or space plays again, Esc goes to the menu
+      @resultsTime = 0
+      $(document).on "keydown#{@eventNs}", (e) =>
+        return if @resultsTime < KEY_DELAY
+        if e.keyCode in [ENTER, SPACE]
+          action = => @game.startGame()
+        else if e.keyCode is ESCAPE
+          action = => @game.startMenu()
+        return unless action?
+        e.preventDefault()
+        # Keep the key from reaching the menu, which starts the game on any key
+        e.stopPropagation()
+        action()
+
     makeButton: (textKey, className, handler) ->
       button = $("<div class=\"button #{className}\"><a href=\"#\"></a></div>")
       button.find('a').text i18n.t(textKey)
@@ -81,7 +60,13 @@ define ["scene", "scoreBoard", "score", "i18n"], (Scene, ScoreBoard, score, i18n
       @addChildElement button
       button
 
+    cleanup: ->
+      super()
+      # The game's background stays behind the results until leaving this screen
+      @background?.remove()
+
     update: (dt) ->
       super dt
+      @resultsTime += dt if @resultsTime?
 
   return GameOverScene

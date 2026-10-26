@@ -47,7 +47,11 @@ define ["scene", "player", "camera", "entityManager", "scoreBoard", "background"
       @scoreBoard.update @camera
       if @player.pos.y > @camera.position + @game.height
         @music.pause()
-        @game.gameOver(@scoreBoard.score)
+        @sounds.play('buzzer')
+        # The game over screen keeps the background where the player fell and removes it
+        # when leaving, so it only goes back to the start on "again" or "menu"
+        @backgroundHandedOver = true
+        @game.gameOver(@scoreBoard.score, @background)
 
       # TODO: Remove the whole render stuff
       @render()
@@ -59,7 +63,7 @@ define ["scene", "player", "camera", "entityManager", "scoreBoard", "background"
 
     cleanup: ->
       super()
-      @background.remove()
+      @background.remove() unless @backgroundHandedOver
       console.log "GameScene.cleanup()"
 
   return GameScene

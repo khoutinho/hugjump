@@ -1,8 +1,8 @@
 #global define, $ 
 Function::property = (prop, desc) ->
   Object.defineProperty @prototype, prop, desc
-define ["camera", "gameScene", "controls", "menuScene", "gameOverScene", "highScoresScene"],
-(Camera, GameScene, controls, MenuScene, GameOverScene, HighScoresScene) ->
+define ["camera", "gameScene", "controls", "menuScene", "gameOverScene", "highScoresScene", "registrationScene"],
+(Camera, GameScene, controls, MenuScene, GameOverScene, HighScoresScene, RegistrationScene) ->
   class Game
     constructor: (el) ->
       console.log "GAME!!"
@@ -15,6 +15,9 @@ define ["camera", "gameScene", "controls", "menuScene", "gameOverScene", "highSc
       @currentScene = null
       $('body').css('font-size', @ratio * 10 + 'px')
       @width = el.width()
+      # Browsers keep Web Audio suspended until the page gets a key press, click or touch
+      $(document).on 'keydown mousedown touchstart', ->
+        Howler.ctx?.resume?() if Howler.ctx?.state is 'suspended'
       return
 
     switchScene: (scene) ->
@@ -43,13 +46,20 @@ define ["camera", "gameScene", "controls", "menuScene", "gameOverScene", "highSc
       requestAnimFrame @update
 
     startMenu: ->
+      # A new visitor signs up again from the menu
+      @player = null
       @switchScene(new MenuScene(this))
 
-    startGame: ->
+    # Without a player, keeps the last one, so "again" plays with the same details
+    startGame: (player) ->
+      @player = player if player?
       @switchScene(new GameScene(this))
 
-    gameOver: (score) ->
-      @switchScene(new GameOverScene(this, score))
+    startRegistration: ->
+      @switchScene(new RegistrationScene(this))
+
+    gameOver: (score, background) ->
+      @switchScene(new GameOverScene(this, score, background))
 
     startHighScores: ->
       @switchScene(new HighScoresScene(this))

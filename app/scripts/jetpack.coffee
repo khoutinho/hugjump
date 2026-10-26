@@ -28,5 +28,6 @@ define ["item"], (Item) ->
     collision: ->
       super()
       @gameScene.player.startJetpack FORCE, TIME
+      @gameScene.sounds.play('spring')
 
   return Jetpack

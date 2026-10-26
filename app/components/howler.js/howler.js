@@ -125,6 +125,8 @@
 
   // allow access to the global audio controls
   window.Howler = new HowlerGlobal();
+  // Exposed so the game can resume it after the first user input (browsers start it suspended)
+  window.Howler.ctx = ctx;
 
   // chek for browser codec support
   var audioTest = new Audio();

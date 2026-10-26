@@ -1,5 +1,7 @@
-# Draws the pixel-art panda player. Usage: python3 tools/panda.py app/images
+# Draws the pixel-art panda player. Usage: python3 tools/panda.py app/images [v1]
 # Outputs panda.png (facing right) and panda-jetpack.png (2 frames side by side, flickering flame)
+# By default draws the low-res 26x25 panda from LOWRES below. With "v1" it draws the first, more
+# detailed 36x35 version from shapes (backed up in app/images/backup/panda-v1.png)
 import sys
 
 from sprites import blank, hexc, save
@@ -111,7 +113,68 @@ def panda(jetpack_frame=None):
     return px
 
 
-out = sys.argv[1]
-save(out + '/panda.png', panda())
-frames = [panda(0), panda(1)]
-save(out + '/panda-jetpack.png', [frames[0][y] + frames[1][y] for y in range(H)])
+# Low-res panda, hand-edited from the v1 shapes at 72% (the previous take is in
+# app/images/backup/panda-v2.png). Letters are the colours in C, '.' is empty
+LOWRES = [
+    '..............KKK.........',
+    '.........KKK.KBbBK........',
+    '........KBbBKKBBBKK.......',
+    '........KBBBWWWWWWWKK.....',
+    '........KBBWWWWWWWWWWK....',
+    '.........KWWWWWWWBBWWWK...',
+    '.........KWWWWWWBBEBWWWK..',
+    '.........KWWWWWWBBBBWWWWK.',
+    '.........KWWWWWWWBBBWWWBB.',
+    '.........KWWWWWWWWWWWWWWK.',
+    '..........KWWWWWWWWPWBWKK.',
+    '.........KKwWWWWWWWWWWKK..',
+    '.......KKWWWwwwWWWKKKK....',
+    '......KWWWWBbBBBBK...KK...',
+    '.....KWWWWBBBBBBBBK.KBBK..',
+    '.....KWWWWBBBBBBBBBKBBBK..',
+    '....KWWWWWWBBBBBBBBBBBK...',
+    '....KWWWWWWWWWBBBBBBBK....',
+    '....KWWWWWWWWWWWWBBBK.....',
+    '...KBBWWWWWWWWWWWWKK......',
+    '..KBBBwwWWWWWWWWWK........',
+    '..KBBKKwwwwWWWWWK.........',
+    '...KK.KBBwwwwwBBBK........',
+    '......KBBBBBBBBBBBK.......',
+    '.......KKBBBKKBBBK........',
+]
+
+
+def lowres_panda(jetpack_frame=None):
+    global W, H
+    W, H = len(LOWRES[0]), len(LOWRES)
+    px = blank(W, H)
+    if jetpack_frame is not None:
+        # Tank on the back above the hind paw, mostly hidden behind the body, then the nozzle
+        # and a flickering flame
+        for y in range(11, 17):
+            for x in range(1, 6):
+                px[y][x] = C['L'] if x == 2 else C['g'] if x == 5 else C['G']
+        put(px, [(x, 17) for x in range(2, 4)], C['N'])
+        if jetpack_frame == 0:
+            flame = [(1, 18), (2, 18), (3, 18), (1, 19), (2, 19), (1, 20)]
+            core = [(2, 18), (2, 19)]
+        else:
+            flame = [(1, 18), (2, 18), (3, 18), (1, 19), (2, 19), (1, 20), (1, 21)]
+            core = [(2, 18), (1, 19)]
+        put(px, flame, C['O'])
+        put(px, core, C['Y'])
+    # The panda (already outlined) goes in front of the tank
+    for y, row in enumerate(LOWRES):
+        for x, c in enumerate(row):
+            if c != '.':
+                px[y][x] = C[c]
+    outline(px)
+    return px
+
+
+if __name__ == '__main__':
+    out = sys.argv[1]
+    draw = panda if len(sys.argv) > 2 and sys.argv[2] == 'v1' else lowres_panda
+    save(out + '/panda.png', draw())
+    frames = [draw(0), draw(1)]
+    save(out + '/panda-jetpack.png', [frames[0][y] + frames[1][y] for y in range(H)])

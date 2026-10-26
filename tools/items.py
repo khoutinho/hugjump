@@ -115,9 +115,36 @@ def trophy():
     return outline(px)
 
 
+def speaker(on):
+    """Speaker icon for the menu volume button: sound waves when on, a red X when off."""
+    w, h = 14, 11
+    px = blank(w, h)
+    body, light = hexc('#4a463c'), hexc('#7a7466')
+    # Box and cone
+    for y in range(4, 7):
+        for x in (1, 2):
+            px[y][x] = body
+    for x, (y0, y1) in zip(range(3, 7), [(3, 7), (2, 8), (1, 9), (1, 9)]):
+        for y in range(y0, y1 + 1):
+            px[y][x] = body
+    px[4][1] = light
+    if on:
+        wave = hexc('#2b1d0e')
+        for x, y in [(8, 4), (8, 5), (8, 6), (10, 2), (11, 3), (11, 4), (11, 5), (11, 6), (11, 7), (10, 8)]:
+            px[y][x] = wave
+        return px
+    red = hexc('#d62828')
+    for i in range(5):
+        px[3 + i][8 + i] = red
+        px[7 - i][8 + i] = red
+    return px
+
+
 if __name__ == '__main__':
     out = sys.argv[1]
     save(out + '/item-coin.png', coin())
     save(out + '/item-drum.png', drum())
     save(out + '/item-jetpack.png', jetpack())
     save(out + '/icon-trophy.png', trophy())
+    save(out + '/icon-sound-on.png', speaker(True))
+    save(out + '/icon-sound-off.png', speaker(False))

@@ -2,12 +2,14 @@ define ["item"], (Item) ->
   class Coin extends Item
     SCALED = false
     COLLISION_DISTANCE = 20
-    DEFAULT_VALUE = 10
+    # A coin is worth a share of the height climbed so far, so it still matters high up
+    HEIGHT_SHARE = 0.05
+    MIN_VALUE = 50
+    # Matches the length of the coin-points animation in main.scss
+    POINTS_SHOW_MS = 900
 
-    constructor: (gameScene, x, y, @value) ->
+    constructor: (gameScene, x, y) ->
       super gameScene, x, y
-      if not @value?
-        @value = DEFAULT_VALUE
 
       if not SCALED
         ratio = gameScene.game.ratio
@@ -34,7 +36,22 @@ define ["item"], (Item) ->
 
     collision: ->
       super()
-      @gameScene.scoreBoard.score += @value
+      scoreBoard = @gameScene.scoreBoard
+      points = Math.max(MIN_VALUE, Math.round(scoreBoard.height * HEIGHT_SHARE))
+      scoreBoard.addBonus points
+      @showPoints points
       @gameScene.sounds.play('coin')
+
+    # "+N" next to the coin that floats up and fades out
+    showPoints: (points) ->
+      label = $('<div class="coin-points"></div>').text "+#{points}"
+      label.css top: "#{@y - @gameScene.camera.position}px"
+      # Right of the coin, or left of it near the right edge so the text isn't cut off
+      if @x > @gameScene.width * 0.7
+        label.css right: "#{@gameScene.width - @x}px"
+      else
+        label.css left: "#{@x + @width}px"
+      @gameScene.game.el.append label
+      setTimeout (-> label.remove()), POINTS_SHOW_MS
 
   return Coin

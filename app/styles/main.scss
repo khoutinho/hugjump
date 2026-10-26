@@ -202,6 +202,33 @@ body {
   height: 1.5em;
 }
 
+.coin-points {
+  position: absolute;
+  font-family: $game-font;
+  font-size: 1.4em;
+  color: #ffd23f;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 101;
+  @extend %pixel-outline;
+  // Same length as POINTS_SHOW_MS in coin.coffee
+  animation: coin-points 0.9s ease-out forwards;
+}
+
+@keyframes coin-points {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-2.5em);
+    opacity: 0;
+  }
+}
+
 .item.trampoline {
   background: url('../images/item-drum.png') no-repeat;
   background-size: 100% 100%;
@@ -221,16 +248,23 @@ body {
 
 .scoreboard {
   position: absolute;
-  width: 100%;
-  height: 1.9em;
-  line-height: 1.9em;
-  background: rgba(167, 185, 205, 0.7);
-  border-bottom: 2px solid black;
-  @include box-shadow(rgba(black, 0.4) 0px 5px 10px);
+  left: 0;
+  right: 0;
+  top: 0.6em;
+  padding: 0 0.6em;
   font-family: $game-font;
   font-size: 1.6em;
-  padding: 0px 10px;
-  z-index: 100; 
+  line-height: 1.6em;
+  color: white;
+  @extend %pixel-outline;
+  z-index: 100;
+  pointer-events: none;
+
+  .best {
+    float: right;
+    font-size: 0.6em;
+    color: #ffd23f;
+  }
 }
 
 .gameScene {
@@ -263,36 +297,6 @@ body {
     top: calc(40% + 4.5em);
   }
 
-  .button.saveName {
-    top: 40%;
-  }
-
-  .button.skipName {
-    top: calc(40% + 4.5em);
-  }
-
-  .nameEntry .label {
-    margin-top: 0.8em;
-  }
-
-  .nameInput {
-    display: block;
-    width: 10em;
-    margin: 0.6em auto 0;
-    padding: 0.5em 0.6em;
-    border: none;
-    outline: none;
-    background: #f4e4b8;
-    color: $pixel-dark;
-    font-family: $game-font;
-    font-size: 1.4em;
-    text-align: center;
-    text-transform: uppercase;
-    text-shadow: none;
-    box-shadow: 0 -0.2em 0 0 $pixel-dark, 0 0.2em 0 0 $pixel-dark,
-                -0.2em 0 0 0 $pixel-dark, 0.2em 0 0 0 $pixel-dark;
-  }
-
   .information {
     position: absolute;
     font-family: $game-font;
@@ -315,6 +319,124 @@ body {
     span {
       font-size: 1.6em;
     }
+  }
+}
+
+// Elements with a hidden long press (Scene.onHold): no text selection or callout while held
+.holdable {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+// Short message shown for a moment (Scene.showNotice), positioned by each screen
+.notice {
+  position: absolute;
+  height: 3.2em;
+  line-height: 3.3em;
+  padding: 0 0.9em;
+  background: #f4e4b8;
+  box-shadow: 0 -0.4em 0 0 $pixel-dark, 0 0.4em 0 0 $pixel-dark,
+              -0.4em 0 0 0 $pixel-dark, 0.4em 0 0 0 $pixel-dark;
+  font-family: $game-font;
+  font-size: 1em;
+  color: $pixel-dark;
+  white-space: nowrap;
+  z-index: 10;
+  display: none;
+
+  &.visible {
+    display: block;
+  }
+}
+
+.registrationScene {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+
+  .form {
+    position: absolute;
+    top: 4em;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-family: $game-font;
+    font-size: 1.2em;
+    color: white;
+    @extend %pixel-outline;
+
+    .heading {
+      display: block;
+      font-size: 2.4em;
+      line-height: 1.6em;
+      color: #ffd23f;
+    }
+  }
+
+  .label {
+    display: block;
+    margin-top: 1em;
+  }
+
+  .field {
+    display: block;
+    width: 15em;
+    margin: 0.5em auto 0;
+    padding: 0.5em 0.6em;
+    border: none;
+    outline: none;
+    background: #f4e4b8;
+    color: $pixel-dark;
+    font-family: $game-font;
+    font-size: 1.2em;
+    text-align: center;
+    text-shadow: none;
+    box-shadow: 0 -0.2em 0 0 $pixel-dark, 0 0.2em 0 0 $pixel-dark,
+                -0.2em 0 0 0 $pixel-dark, 0.2em 0 0 0 $pixel-dark;
+
+    &.name {
+      text-transform: uppercase;
+    }
+
+    &:focus {
+      background: #fff6d8;
+    }
+
+    &.invalid {
+      box-shadow: 0 -0.2em 0 0 #d62828, 0 0.2em 0 0 #d62828,
+                  -0.2em 0 0 0 #d62828, 0.2em 0 0 0 #d62828;
+    }
+  }
+
+  .formError {
+    min-height: 1.2em;
+    margin-top: 1em;
+    color: #ff8a80;
+  }
+
+  .privacy {
+    width: 24em;
+    margin: 0.6em auto 0;
+    font-size: 0.8em;
+    line-height: 1.6em;
+  }
+
+  .button {
+    @extend %pixel-button;
+
+    a {
+      width: 8em;
+      text-align: center;
+    }
+  }
+
+  .button.start {
+    top: 62%;
+  }
+
+  .button.back {
+    top: calc(62% + 4.5em);
   }
 }
 
@@ -387,6 +509,13 @@ body {
     @extend %pixel-button;
   }
 
+  // Over the bottom of the list, above the back button
+  .notice {
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(20% + 1.5em);
+  }
+
   .button.back {
     bottom: 7%;
   }
@@ -436,34 +565,105 @@ $menu-panda-ground: 10%;
     top: calc(30% + 4.5em);
   }
 
+  // Above the volume button and the language flag
+  .notice {
+    right: 2em;
+    bottom: 7em;
+  }
+
   .scores-toggle {
-    position: absolute;
-    // Just left of the language flag
-    right: 8.6em;
-    bottom: 2em;
-    height: 3.2em;
-    line-height: 3.3em;
-    padding: 0 0.9em 0 3.6em;
+    padding-left: 3.6em;
     background: #f4e4b8 url('../images/icon-trophy.png') no-repeat 0.7em center;
     background-size: 2.4em auto;
     image-rendering: pixelated;
-    box-shadow: 0 -0.4em 0 0 $pixel-dark, 0 0.4em 0 0 $pixel-dark,
-                -0.4em 0 0 0 $pixel-dark, 0.4em 0 0 0 $pixel-dark;
-    font-family: $game-font;
-    font-size: 1em;
-    color: $pixel-dark;
-    text-decoration: none;
-    cursor: pointer;
 
     &.off {
       background-color: #a8a395;
       color: #4a463c;
       filter: grayscale(1);
     }
+  }
+
+  // Same size as the language flag, just left of it
+  .sound-toggle {
+    position: absolute;
+    right: 8.6em;
+    bottom: 2em;
+    width: 4.8em;
+    height: 3.2em;
+    background: #f4e4b8 url('../images/icon-sound-on.png') no-repeat center;
+    background-size: 3.4em auto;
+    image-rendering: pixelated;
+    box-shadow: 0 -0.4em 0 0 $pixel-dark, 0 0.4em 0 0 $pixel-dark,
+                -0.4em 0 0 0 $pixel-dark, 0.4em 0 0 0 $pixel-dark;
+    cursor: pointer;
+
+    &.muted {
+      background-image: url('../images/icon-sound-off.png');
+    }
 
     &:active {
       transform: translateY(0.2em);
     }
+  }
+
+  // Volume bar opened by the speaker, to its left
+  .volume-panel {
+    position: absolute;
+    right: 15.2em;
+    bottom: 2em;
+    height: 3.2em;
+    display: none;
+    align-items: center;
+    gap: 0.8em;
+    padding: 0 1em;
+    background: #f4e4b8;
+    box-shadow: 0 -0.4em 0 0 $pixel-dark, 0 0.4em 0 0 $pixel-dark,
+                -0.4em 0 0 0 $pixel-dark, 0.4em 0 0 0 $pixel-dark;
+
+    &.open {
+      display: flex;
+    }
+  }
+
+  .volume-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12em;
+    height: 1em;
+    margin: 0;
+    // The yellow fill is sized from the script to match the value
+    background: linear-gradient(#ffd23f, #ffd23f) no-repeat #a8a395;
+    box-shadow: 0 0 0 0.25em $pixel-dark;
+    cursor: pointer;
+
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 1.2em;
+      height: 2.2em;
+      background: $pixel-dark;
+      border: none;
+    }
+
+    &::-moz-range-thumb {
+      width: 1.2em;
+      height: 2.2em;
+      background: $pixel-dark;
+      border: none;
+      border-radius: 0;
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .volume-value {
+    width: 3em;
+    text-align: right;
+    font-family: $game-font;
+    font-size: 1.1em;
+    color: $pixel-dark;
   }
 
   .lang-toggle {
