@@ -14,13 +14,15 @@ define ["scene", "player", "camera", "entityManager", "scoreBoard", "background"
       @addChildElement(@scoreBoard.el)
       @background = new Background(@game.el.parent())
       @reset()
+      # Holding a side of the screen steers, so a long press must not open the browser's menu
+      $(document).on "contextmenu#{@eventNs}", (e) -> e.preventDefault()
       @music = new Howl({
-        urls: ['/sound/popcorn.ogg'],
+        urls: ['sound/popcorn.ogg'],
         buffer: true,
         loop: true
       }).play()
       @sounds = new Howl({
-        urls: ['/sound/sprite_sound.wav'],
+        urls: ['sound/sprite_sound.wav'],
         sprite: {
           'buzzer': [0, 278],
           'jump': [350, 1051],

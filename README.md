@@ -31,10 +31,17 @@ npm run build
 > O jogo precisa ser aberto por um servidor (como o do `npm run dev`); abrir o `app/index.html`
 > direto do disco não funciona, porque os scripts são carregados com RequireJS.
 
+### No tablet (GitHub Pages)
+
+A cada push na `main`, uma GitHub Action (`.github/workflows/pages.yml`) compila o jogo e publica em
+**https://khoutinho.github.io/hugjump**. Na primeira vez, ative em **Settings → Pages → Source:
+GitHub Actions** no repositório. Detalhes e a alternativa sem internet em `docs/tablet-android.md`.
+
 Como jogar
 ----------
 
-* **Setas ← →** movem o panda. Em celular ou tablet, incline o aparelho.
+* **Setas ← →** movem o panda. Em celular ou tablet, segure o lado esquerdo ou direito da tela (ou
+  incline o aparelho).
 * No menu, qualquer tecla também começa o jogo.
 * No fim de jogo, **Enter** ou **espaço** joga de novo e **Esc** volta ao menu.
 * Se ninguém mexer por 45 segundos no fim de jogo ou nos recordes, o jogo volta sozinho ao menu.
@@ -77,7 +84,7 @@ Estrutura
 | `app/styles/main.scss` | Estilos (SCSS, compilado para `main.css`) |
 | `app/images/` | Sprites e fundos (versões antigas em `app/images/backup/`) |
 | `app/fonts/` | Fonte Press Start 2P (licença SIL OFL) |
-| `docs/tablet-android.md` | O que falta para rodar num tablet Android |
+| `docs/tablet-android.md` | Como rodar num tablet Android |
 | `tools/` | Scripts que desenham os sprites em pixel art e o substituto do Compass para o SCSS |
 
 Ajustes rápidos
@@ -104,6 +111,7 @@ python3 tools/panda.py app/images     # panda e panda com jetpack (com "v1", o p
 python3 tools/items.py app/images     # moeda, tambor, jetpack, troféu e alto-falante
 python3 tools/flags.py app/images     # bandeiras do Brasil e do Reino Unido
 python3 tools/clouds.py app/images    # recorta background-clouds.png em nuvens soltas (app/images/clouds/)
+python3 tools/icon.py app/images      # ícones da tela inicial (rodar de novo depois de mudar o panda)
 ```
 
 Créditos

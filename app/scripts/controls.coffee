@@ -12,6 +12,8 @@ define [], ->
     constructor: ->
       @keys = {}
       @tilt = 0
+      # Fingers on the screen, oldest first, with side -1 on the left half and 1 on the right
+      @touches = []
       @clickObservers = []
       @inputVector =
         x: 0
@@ -21,6 +23,8 @@ define [], ->
         .on('keyup', @onKeyUp.bind(@))
         .on('deviceorientation', @onOrientation.bind(@))
         .on('touchstart', @onTouch.bind(@))
+        .on('touchstart touchmove', @onTouchMove.bind(@))
+        .on('touchend touchcancel', @onTouchEnd.bind(@))
         .on('click', @onTouch.bind(@))
 
     onKeyDown: (e) ->
@@ -41,12 +45,31 @@ define [], ->
       else
         @inputVector.x = 0
 
+      # Holding a side of the screen comes next, the latest finger wins
+      if @inputVector.x == 0
+        @inputVector.x = @touchDirection()
+
       if @inputVector.x == 0
         @inputVector.x = @tilt
 
+    touchDirection: ->
+      if @touches.length then @touches[@touches.length - 1].side else 0
+
     onTouch: (e) ->
-      console.log "touched"
       this.trigger('touch', e)
+
+    onTouchMove: (e) ->
+      for touch in e.changedTouches
+        side = if touch.clientX < window.innerWidth / 2 then -1 else 1
+        existing = (t for t in @touches when t.id is touch.identifier)[0]
+        if existing
+          existing.side = side
+        else
+          @touches.push id: touch.identifier, side: side
+
+    onTouchEnd: (e) ->
+      ended = (touch.identifier for touch in e.changedTouches)
+      @touches = (t for t in @touches when t.id not in ended)
 
     onOrientation: (e) ->
       degree = e.gamma
